@@ -26,6 +26,7 @@ module "ec2" {
 
 module "s3" {
     source = ".//Components/s3"
+    # accountid = var.accountid.id
   
 }
 

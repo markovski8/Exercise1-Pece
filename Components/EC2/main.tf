@@ -37,10 +37,14 @@ resource "aws_iam_policy" "ec2_s3_policy" {
       {
         Effect    = "Allow",
         Action    = [
+          "s3:GetBucketLocation",
           "s3:GetObject",
           "s3:PutObject"
         ],
-        Resource  = "arn:aws:s3:::wordpress-data-bucket-pece/*"
+        "Resource": [
+        "arn:aws:s3:::wordpress-data-bucket-pece",
+        "arn:aws:s3:::wordpress-data-bucket-pece/*"
+        ]
       }
     ]
   })
@@ -62,25 +66,6 @@ resource "aws_iam_policy" "rds_policy" {
     ]
   })
 }
-# Policy for Secrets Manager Access
-# resource "aws_iam_policy" "ec2_secrets_policy" {
-#   name        = "ec2_secrets_policy"
-#   description = "Policy allowing EC2 to access Secrets Manager secrets"
-
-#   policy = jsonencode({
-#     Version = "2012-10-17",
-#     Statement = [
-#       {
-#         Effect    = "Allow",
-#         Action    = [
-#           "secretsmanager:GetSecretValue",
-#           "secretsmanager:DescribeSecret"
-#         ],
-#         Resource  = "arn:aws:secretsmanager:secret:wordpress-db-credenc3"
-#       }
-#     ]
-#   })
-# }
 
 # Data source to get AWS region
 data "aws_region" "current" {}
@@ -144,42 +129,37 @@ resource "aws_instance" "webServer" {
   key_name                    = var.key_name
   vpc_security_group_ids      = [var.security_group_id]
 
-#   user_data = <<-EOF
+
+
+#  user_data = <<-EOF
 #     #!/bin/bash
 #     sudo dnf update -y
-#     sudo dnf install -y httpd
+#     sudo dnf install -y httpd php php-fpm php-mysqlnd
 #     sudo systemctl start httpd
 #     sudo systemctl enable httpd
-#     echo "<html><body><h1>Apache is running on Amazon Linux 2023</h1></body></html>" | sudo tee /var/www/html/index.html
-  
-#     EOF
+#     sudo systemctl start php-fpm
+#     sudo systemctl enable php-fpm
+#     echo "<?php phpinfo(); ?>" | sudo tee /var/www/html/info.php
 
-#   tags = {
-#     Name = "Web Server"
-#   }
-# }
+  
+#     sudo mkdir -p /var/www/example
+#     echo "<html><body><h1>Welcome to Example.com!</h1></body></html>" | sudo tee /var/www/example/index.html
+
+#     sudo systemctl restart httpd
+#     EOF
 
  user_data = <<-EOF
     #!/bin/bash
-    sudo dnf update -y
-    sudo dnf install -y httpd php php-fpm php-mysqlnd
+    sudo yum update -y
+    sudo yum install -y httpd php
     sudo systemctl start httpd
     sudo systemctl enable httpd
-    sudo systemctl start php-fpm
-    sudo systemctl enable php-fpm
-    echo "<?php phpinfo(); ?>" | sudo tee /var/www/html/info.php
-
-    
-    EOF2
-
-    sudo mkdir -p /var/www/example
-    echo "<html><body><h1>Welcome to Example.com!</h1></body></html>" | sudo tee /var/www/example/index.html
-
-    sudo systemctl restart httpd
-    EOF
+    echo "<?php phpinfo(); ?>" > /var/www/html/index.php
+  EOF
 
   tags = {
-    Name = "Web Server"
+    Name = "WordPress Server"
   }
 }
+
 

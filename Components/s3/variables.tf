@@ -3,3 +3,5 @@ variable "bucket" {
   type = string
   description = "bucket for wordpress"
 }
+
+# variable "accountid" {}
