@@ -3,9 +3,17 @@
 
 ### Terraform ###
 # Local .terraform directories
-**/.terraform/*
+.terraform
 
 # .tfstate files
+# Local .terraform directories
+**/.terraform/*
+*.hcl
+*local_key*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
 
 
 # Crash log files
